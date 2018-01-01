@@ -30,6 +30,33 @@ public:
     virtual void process(uint32_t currentTime, uint32_t deltaTime, State* state, int nState, const CRGBPalette16* palette) = 0;
 };
 
+class SolidEffect : public Effect {
+public:
+    SolidEffect() {}
+
+    virtual void init(uint32_t currentTime, State* state, int nState);
+    virtual void process(uint32_t currentTime, uint32_t deltaTime, State* state, int nState, const CRGBPalette16* palette);
+
+private:
+    bool firstCall;
+};
+
+class SinEffect : public Effect {
+public:
+    SinEffect() {}
+
+    virtual void init(uint32_t currentTime, State* state, int nState);
+    virtual void process(uint32_t currentTime, uint32_t deltaTime, State* state, int nState, const CRGBPalette16* palette);
+};
+
+class IcicleEffect : public Effect {
+public:
+    IcicleEffect() {}
+
+    virtual void init(uint32_t currentTime, State* state, int nState);
+    virtual void process(uint32_t currentTime, uint32_t deltaTime, State* state, int nState, const CRGBPalette16* palette);
+};
+
 class SparkleEffect : public Effect {
 public:
     SparkleEffect() {}

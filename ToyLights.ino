@@ -6,16 +6,16 @@
 
 //#define FEATURE_SHUTDOWN
 //#define FEATURE_EPROM
-
-#ifdef FEATURE_EPROM
-#include "EEPROM.h"
-#endif
-
 #define LED_PIN     6
 #define NUM_LEDS    60
 #define BUTTON_0_PIN  9  // Color change
 #define BUTTON_1_PIN  10 // Effect
 #define BUTTON_2_PIN  11 // Brightness
+#define MAX_POWER 900    // in milliAmps
+
+#ifdef FEATURE_EPROM
+#include "EEPROM.h"
+#endif
 
 #define ESLOT_INIT      0
 #define ESLOT_PALETTE   1
@@ -102,9 +102,18 @@ int setPalette(int id)
     return id;
 }
 
-
 uint8_t setBrightness(uint8_t value)
 {
+    uint32_t effectPower = effect->power(&gPalette);
+    uint32_t power = effectPower * uint32_t(value) / uint32_t(255);
+    if (power > MAX_POWER) {
+        // power = effectPower * value / 255
+        uint32_t newValue = uint32_t(255) * MAX_POWER / effectPower;
+        if (newValue > 255) 
+            newValue = 255;
+        value = uint8_t(newValue);
+    }
+
     FastLED.setBrightness(value);
 #ifdef FEATURE_EPROM
     EEPROM.update(ESLOT_BRIGHT, value);
@@ -179,15 +188,18 @@ void loop() {
     if (button0.press()) {
         shutdownTime = currentTime + SHUTDOWN_TIME;
         setPalette(getPalette() + 1);
+        shutdownTime = currentTime + SHUTDOWN_TIME;
     }
     button1.process();
     if (button1.press()) {
         setEffect(getEffect() + 1);
+        shutdownTime = currentTime + SHUTDOWN_TIME;
     }
 
     button2.process();
     if (button2.press()) {
         resetBrightness();
+        shutdownTime = currentTime + SHUTDOWN_TIME;
     }
     if (button2.held()) {
         switch(button2.nHolds()) {
@@ -201,13 +213,20 @@ void loop() {
             setBrightness(BRIGHTNESS_3);
             break;
         }
+        shutdownTime = currentTime + SHUTDOWN_TIME;
     }
 
 #ifdef FEATURE_SHUTDOWN
     if (millis() > shutdownTime) {
-        for (int i = 0; i < NUM_PALETTE_ENTRIES; i++) {
-            gPalette[i] = CRGB::Black;
+        if (leds[0].getRGB() != CRGB::black) {
+            for (int i = 0; i < NUM_PALETTE_ENTRIES; i++) {
+                for (int i = 0; i < NUM_LEDS; ++i) {
+                    leds[i].setRGB(0, 0, 0);
+                }
+                FastLED.show();
+            }
         }
+        return;
     }
 #endif
 

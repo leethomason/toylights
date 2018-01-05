@@ -28,6 +28,11 @@ public:
 
     virtual void init(uint32_t currentTime, State* state, int nState) = 0;
     virtual void process(uint32_t currentTime, uint32_t deltaTime, State* state, int nState, const CRGBPalette16* palette) = 0;
+    // Approximate draw at full brightness.
+    virtual uint32_t power(const CRGBPalette16* palette) const = 0;
+
+protected:
+    static uint32_t solidPower(const CRGBPalette16* palette);
 };
 
 class SolidEffect : public Effect {
@@ -36,6 +41,7 @@ public:
 
     virtual void init(uint32_t currentTime, State* state, int nState);
     virtual void process(uint32_t currentTime, uint32_t deltaTime, State* state, int nState, const CRGBPalette16* palette);
+    virtual uint32_t power(const CRGBPalette16* palette) const;
 
 private:
     bool firstCall;
@@ -47,6 +53,7 @@ public:
 
     virtual void init(uint32_t currentTime, State* state, int nState);
     virtual void process(uint32_t currentTime, uint32_t deltaTime, State* state, int nState, const CRGBPalette16* palette);
+    virtual uint32_t power(const CRGBPalette16* palette) const;
 };
 
 class IcicleEffect : public Effect {
@@ -55,6 +62,7 @@ public:
 
     virtual void init(uint32_t currentTime, State* state, int nState);
     virtual void process(uint32_t currentTime, uint32_t deltaTime, State* state, int nState, const CRGBPalette16* palette);
+    virtual uint32_t power(const CRGBPalette16* palette) const;
 };
 
 class SparkleEffect : public Effect {
@@ -63,6 +71,7 @@ public:
 
     virtual void init(uint32_t currentTime, State* state, int nState);
     virtual void process(uint32_t currentTime, uint32_t deltaTime, State* state, int nState, const CRGBPalette16* palette);
+    virtual uint32_t power(const CRGBPalette16* palette) const;
 };
 
 #endif // EFFECTS_INCLUDED

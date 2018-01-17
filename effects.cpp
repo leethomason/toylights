@@ -5,13 +5,15 @@
 static const uint32_t SPARKLE_FADE_IN_SPEED = 30;   // lower number fades in slower
 static const uint32_t SPARKLE_FADE_OUT_SPEED = 6;    // higher number hangs around longer
 
-uint32_t Effect::solidPower(const CRGBPalette16* palette) 
+uint32_t Effect::solidPower(const CRGBPalette16* palette, uint32_t nLEDs) 
 {
     uint32_t total = 0;
     for(int i=0; i<NUM_PALETTE_ENTRIES; ++i) {
         total += palette->entries[i].red + palette->entries[i].green + palette->entries[i].blue;
     }
-    return uint32_t(20) * total / uint32_t(255);    // 20mA for each LED channel at 255 power
+
+
+    return nLEDs * uint32_t(20) * total * uint32_t(4) / (uint32_t(255) * uint32_t(NUM_PALETTE_ENTRIES) * uint32_t(7));
 }
 
 void SolidEffect::init(uint32_t /*currentTime*/, State* /*state*/, int /*nState*/)
@@ -33,9 +35,9 @@ void SolidEffect::process(uint32_t /*currentTime*/, uint32_t /*deltaTimre*/, Sta
 }
 
 
-uint32_t SolidEffect::power(const CRGBPalette16* palette) const
+uint32_t SolidEffect::power(const CRGBPalette16* palette, uint32_t nLEDs) const
 {
-    return solidPower(palette);
+    return solidPower(palette, nLEDs);
 }
 
 
@@ -62,10 +64,10 @@ void SinEffect::process(uint32_t currentTime, uint32_t /*deltaTimre*/, State* st
 }
 
 
-uint32_t SinEffect::power(const CRGBPalette16* palette) const
+uint32_t SinEffect::power(const CRGBPalette16* palette, uint32_t nLEDs) const
 {
     // (2+2) / (pi*2)
-    return solidPower(palette) * uint32_t(64) / uint32_t(100);
+    return solidPower(palette, nLEDs) * uint32_t(64) / uint32_t(100);
 }
 
 
@@ -97,10 +99,10 @@ void IcicleEffect::process(uint32_t currentTime, uint32_t /*deltaTimre*/, State*
 }
 
 
-uint32_t IcicleEffect::power(const CRGBPalette16* palette) const
+uint32_t IcicleEffect::power(const CRGBPalette16* palette, uint32_t nLEDs) const
 {
     // Keepse everything half lit
-    return solidPower(palette) / uint32_t(2);
+    return solidPower(palette, nLEDs) / uint32_t(2);
 }
 
 
@@ -110,7 +112,7 @@ void SparkleEffect::init(uint32_t /*currentTime*/, State* state, int nState)
     for(int i=0; i<nState; ++i) {
         state[i].init();
         state[i].brightness = -int(random8()) + int(random8());
-        state[i].palEntry = random8() % 16;
+        state[i].palEntry = random8() % NUM_PALETTE_ENTRIES;
     }
 }
 
@@ -147,8 +149,8 @@ void SparkleEffect::process(uint32_t /*currentTime*/, uint32_t deltaTime, State*
 }
 
 
-uint32_t SparkleEffect::power(const CRGBPalette16* palette) const
+uint32_t SparkleEffect::power(const CRGBPalette16* palette, uint32_t nLEDs) const
 {
     // Tricky to estimate. 40%??
-    return solidPower(palette) * uint32_t(4) / uint32_t(10);
+    return solidPower(palette, nLEDs) * uint32_t(4) / uint32_t(10);
 }

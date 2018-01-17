@@ -6,11 +6,11 @@
 
 //#define FEATURE_SHUTDOWN
 //#define FEATURE_EPROM
-#define LED_PIN     6
-#define NUM_LEDS    60
+#define LED_PIN       11
+#define NUM_LEDS      60
 #define BUTTON_0_PIN  9  // Color change
-#define BUTTON_1_PIN  10 // Effect
-#define BUTTON_2_PIN  11 // Brightness
+#define BUTTON_1_PIN  6  // Effect
+#define BUTTON_2_PIN  5  // Brightness
 #define MAX_POWER 900    // in milliAmps
 
 #ifdef FEATURE_EPROM
@@ -104,8 +104,10 @@ int setPalette(int id)
 
 uint8_t setBrightness(uint8_t value)
 {
-    uint32_t effectPower = effect->power(&gPalette);
+    //Serial.print("setB "); Serial.println(value);
+    uint32_t effectPower = effect->power(&gPalette, NUM_LEDS);
     uint32_t power = effectPower * uint32_t(value) / uint32_t(255);
+    //Serial.print("power "); Serial.println(power);
     if (power > MAX_POWER) {
         // power = effectPower * value / 255
         uint32_t newValue = uint32_t(255) * MAX_POWER / effectPower;
@@ -113,6 +115,7 @@ uint8_t setBrightness(uint8_t value)
             newValue = 255;
         value = uint8_t(newValue);
     }
+    //Serial.print("setB "); Serial.println(value);
 
     FastLED.setBrightness(value);
 #ifdef FEATURE_EPROM
@@ -151,6 +154,11 @@ uint8_t getBrightness() {
 }
 
 void setup() {
+    //Serial.begin(19200);
+    //while(!Serial) {
+    //  delay(100);
+    //}
+
     FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
     FastLED.setBrightness(MASTER_BRIGHTNESS);
     for (int i = 0; i < NUM_LEDS; ++i) {
